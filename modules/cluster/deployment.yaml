@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pleasework
+spec:
+  selector:
+    matchLabels:
+      app: pleasework
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: pleasework
+    spec:
+      containers: 
+      - name: pleasework
+        image: europe-west2-docker.pkg.dev/samplesuji/my-repositoryarti/hello-second
+        ports:
+          - containerPort: 80

@@ -1,0 +1,15 @@
+// Creating gateways for both the vpcs
+
+resource "google_compute_ha_vpn_gateway" "ha_gateway1" {
+  project = var.project
+  region  = "europe-west1"
+  name    = "ha-vpn-1"
+  network = google_compute_network.vpc_net_testproj.id
+}
+
+resource "google_compute_ha_vpn_gateway" "ha_gateway2" {
+  project = var.project
+  region  = "europe-west1"
+  name    = "ha-vpn-2"
+  network = google_compute_network.private_pool_vpc.id
+}

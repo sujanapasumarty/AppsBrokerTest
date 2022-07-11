@@ -1,0 +1,21 @@
+/* ###### Create a cloud router (to be use by the Cloud NAT) ######
+resource "google_compute_router" "router1" {
+  name    = "router1"
+  project = var.project
+  region  = var.region
+  network = google_compute_network.private_pool_vpc.name
+  bgp {
+    asn = 64515
+  }
+
+}
+
+resource "google_compute_router" "router2" {
+  name    = "router2"
+  project = var.project
+  region  = var.region
+  network = google_compute_network.vpc_net_testproj.name
+    bgp {
+    asn = 64514
+  }
+} */

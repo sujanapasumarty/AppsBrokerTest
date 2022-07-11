@@ -1,0 +1,41 @@
+/* resource "google_compute_router_interface" "router1_interface1" {
+  project    =var.project
+  name       = "router1-interface1"
+  router     = google_compute_router.router1.name
+  region     = "us-central1"
+  ip_range   = "169.254.0.1/30"
+  vpn_tunnel = google_compute_vpn_tunnel.tunnel1.name
+}
+
+
+
+resource "google_compute_router_interface" "router1_interface2" {
+  project    =var.project
+  name       = "router1-interface2"
+  router     = google_compute_router.router1.name
+  region     = "us-central1"
+  ip_range   = "169.254.1.2/30"
+  vpn_tunnel = google_compute_vpn_tunnel.tunnel2.name
+}
+
+resource "google_compute_router_interface" "router2_interface1" {
+  project    =var.project
+  name       = "router2-interface1"
+  router     = google_compute_router.router2.name
+  region     = "us-central1"
+  ip_range   = "169.254.0.2/30"
+  vpn_tunnel = google_compute_vpn_tunnel.tunnel3.name
+}
+
+
+
+resource "google_compute_router_interface" "router2_interface2" {
+  project    =var.project
+  name       = "router2-interface2"
+  router     = google_compute_router.router2.name
+  region     = "us-central1"
+  ip_range   = "169.254.1.1/30"
+  vpn_tunnel = google_compute_vpn_tunnel.tunnel4.name
+}
+
+ */

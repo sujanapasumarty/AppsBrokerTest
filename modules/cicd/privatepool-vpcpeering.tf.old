@@ -1,0 +1,100 @@
+
+
+
+resource "google_project_service" "servicenetworking" {
+  project = var.project
+  service = "servicenetworking.googleapis.com"
+  //service = ["iam.googleapis.com"]
+  disable_on_destroy = false
+}
+
+### Create the service peering connection with pool vpc###
+resource "google_service_networking_connection" "worker_pool_conn" {
+  //  project_id = var.project
+  network                 = google_compute_network.vpc_net_testproj.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.worker_range.address]
+  depends_on              = [google_project_service.servicenetworking]
+}
+
+resource "google_service_networking_connection" "worker_pool_conn_testvpc" {
+  //  project_id = var.project
+  network                 = google_compute_network.private_pool_vpc.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.worker_range_testvpc.address]
+  depends_on              = [google_project_service.servicenetworking]
+}
+
+/* resource "google_compute_global_address" "worker_range_testvpc" {
+  project       = var.project
+  address       = "100.100.100.105/16"
+  name          = "worker-range-testvpc"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.vpc_net_testproj.id
+} */
+
+
+resource "google_compute_global_address" "worker_range" {
+  project       = var.project
+  address            = "100.100.100.105/16"
+  name          = "worker-range"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.private_pool_vpc.id
+}
+
+
+
+//Both networks must create a peering with each other for the peering to be functional.
+resource "google_compute_network_peering" "peering1" {
+  name                 = "peering1"
+  network              = google_compute_network.vpc_net_testproj.self_link
+  peer_network         = google_compute_network.private_pool_vpc.self_link
+  export_custom_routes = var.export_local_custom_routes
+  import_custom_routes = var.export_peer_custom_routes
+
+  export_subnet_routes_with_public_ip = var.export_local_subnet_routes_with_public_ip
+  import_subnet_routes_with_public_ip = var.export_peer_subnet_routes_with_public_ip
+}
+
+resource "google_compute_network_peering" "peering2" {
+  name                 = "peering2"
+  peer_network         = google_compute_network.vpc_net_testproj.self_link
+  network              = google_compute_network.private_pool_vpc.self_link
+  export_custom_routes = var.export_local_custom_routes
+  import_custom_routes = var.export_peer_custom_routes
+
+  export_subnet_routes_with_public_ip = var.export_local_subnet_routes_with_public_ip
+  import_subnet_routes_with_public_ip = var.export_peer_subnet_routes_with_public_ip
+}
+
+
+resource "google_compute_network_peering_routes_config" "peering_primary_routes" {
+  project = var.project
+  peering = google_compute_network_peering.peering1.name
+  network = google_compute_network.vpc_net_testproj.name
+
+  import_custom_routes = true
+  export_custom_routes = true
+}
+
+
+resource "google_cloudbuild_worker_pool" "pool" {
+  name     = "my-pool"
+  project  = var.project
+  location = var.cluster_zone
+  worker_config {
+    disk_size_gb   = 100
+    machine_type   = "e2-standard-4"
+    no_external_ip = false
+  }
+  network_config {
+    peered_network = google_compute_network.private_pool_vpc.id
+  }
+  depends_on = [google_service_networking_connection.worker_pool_conn]
+}
+
+
